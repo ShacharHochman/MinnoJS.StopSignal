@@ -516,5 +516,4 @@ API.addTrialSet('nogo', [
 		}
 	]);
 	return API.script;
-  API.addSettings('onEnd', window.minnoJS.onEnd);
 });
