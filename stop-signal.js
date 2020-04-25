@@ -92,7 +92,7 @@ define(['pipAPI'], function(APIconstructor) {
             iti_duration      : 500
         },
 
-        frame            : 'images/frame.png',
+        frame            : 'https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png',
 
         minScore4exp     : 0,
         trials4practice  : 3,
