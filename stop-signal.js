@@ -17,8 +17,8 @@ define(['pipAPI'], function(APIconstructor) {
         // Transform logs into a string
         // we save as CSV because qualtrics limits to 20K characters and this is more efficient.
         serialize: function (name, logs) {
-            var headers = ['SlideName', 'SSD', 'Response', 'RT', 'StimData', 'MediaData', 'Correct', 'data.response', 'Stop.NoStop', 'CorrectResponse', 'PracExp'];
-            var content = logs.map(function (log) { return [log.name, log.data.stop_signal_time, log.responseHandle, log.latency, log.stimuli, log.media, log.data.score, log.data.response, log.data.type, log.data.correct, log.data.block]; });
+            var headers = ['SlideName', 'SSD', 'Response', 'RT', 'Correct', 'data.response', 'Stop.NoStop', 'CorrectResponse', 'PracExp'];
+            var content = logs.map(function (log) { return [log.name, log.data.stop_signal_time, log.responseHandle, log.latency, log.data.score, log.data.response, log.data.type, log.data.correct, log.data.block]; });
             console.log(content)
             content.unshift(headers);
             return toCsv(content);
@@ -52,9 +52,8 @@ define(['pipAPI'], function(APIconstructor) {
  	    feedback     : '',
  	    instructions :{
             inst_welcome : `<font size=5>
-                                <p>Welcome to the experiment!</p><br>
-                                <p>We will show you letters, one after the other.</p>
-                                <P>Your task is to judge, as quickly as possible, what the letter is.</p><br>
+                                <p>AAAYou will now have the experiment's practice </p><br>
+                                <P>Your response keys instructions are as follows:</p><br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
                                 <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
@@ -67,8 +66,7 @@ define(['pipAPI'], function(APIconstructor) {
                             </font>`,
             inst_start   : `<font size=5>
                                 <p>The practice has now ended.</p></br>
-
-                                <p>Remember: indicate the presented letter.</p></br>
+                                <p>Remember: </p></br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
                                 <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
@@ -98,7 +96,7 @@ define(['pipAPI'], function(APIconstructor) {
         frame            : 'https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png',
 
         minScore4exp     : 0,
-        trials4practice  : 4,
+        trials4practice  : 8,
 
         score             : 0,
         trial_count       : 1
@@ -490,16 +488,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 3,
+					times: 4,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 3, 'seed': 'goP'}, data:{block: 'practice'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 4, 'seed': 'goP'}, data:{block: 'practice'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 1,
+					times: 4,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 1, 'seed': 'nogoP'}, data:{block: 'practice'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 4, 'seed': 'nogoP'}, data:{block: 'practice'}}
 					]
 				}
 			]
@@ -513,16 +511,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 1,
+					times: 10,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 1, 'seed': 'goE'}, data:{block: 'exp'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 10, 'seed': 'goE'}, data:{block: 'exp'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 30,
+					times: 10,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 30, 'seed': 'nogoE'}, data:{block: 'exp'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 10, 'seed': 'nogoE'}, data:{block: 'exp'}}
 					]
 				}
 			]
