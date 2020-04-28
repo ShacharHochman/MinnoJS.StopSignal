@@ -19,6 +19,7 @@ define(['pipAPI'], function(APIconstructor) {
         serialize: function (name, logs) {
             var headers = ['SlideName', 'SSD', 'Response', 'RT', 'StimData', 'MediaData', 'Correct', 'data.response', 'Stop.NoStop', 'CorrectResponse', 'KK', 'LL','StartExp'];
             var content = logs.map(function (log) { return [log.name, log.data.stop_signal_time, log.responseHandle, log.latency, log.stimuli, log.media, log.data.score, log.data.response, log.data.type,log.data.correct, log.data.exp]; });
+            console.log(content)
             content.unshift(headers);
             return toCsv(content);
 
@@ -51,9 +52,8 @@ define(['pipAPI'], function(APIconstructor) {
  	    feedback     : '',
  	    instructions :{
             inst_welcome : `<font size=5>
-                                <p>Welcome to the experiment!</p><br>
-                                <p>We will show you letters, one after the other.</p>
-                                <P>Your task is to judge, as quickly as possible, what the letter is.</p><br>
+                                <p>You will now have a practice </p><br>
+                                <P>Reminder:</p><br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
                                 <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
@@ -66,7 +66,7 @@ define(['pipAPI'], function(APIconstructor) {
                             </font>`,
             inst_start   : `<font size=5>
                                 <p>The practice has now ended.</p></br>
-
+                                <p>Your performance in the following trials will be recorded.</p></br>
                                 <p>Remember: indicate the presented letter.</p></br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
