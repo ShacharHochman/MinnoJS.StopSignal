@@ -17,8 +17,8 @@ define(['pipAPI'], function(APIconstructor) {
         // Transform logs into a string
         // we save as CSV because qualtrics limits to 20K characters and this is more efficient.
         serialize: function (name, logs) {
-            var headers = ['SlideName', 'SSD', 'Response', 'RT', 'StimData', 'MediaData', 'Correct', 'data.response', 'Stop.NoStop', 'CorrectResponse', 'StartExp'];
-            var content = logs.map(function (log) { return [log.name, log.data.stop_signal_time, log.responseHandle, log.latency, log.stimuli, log.media, log.data.score, log.data.response, log.data.type,log.data.correct, log.data.exp]; });
+            var headers = ['SlideName', 'SSD', 'Response', 'RT', 'StimData', 'MediaData', 'Correct', 'data.response', 'Stop.NoStop', 'CorrectResponse', 'PracExp'];
+            var content = logs.map(function (log) { return [log.name, log.data.stop_signal_time, log.responseHandle, log.latency, log.stimuli, log.media, log.data.score, log.data.response, log.data.type, log.data.correct, log.data.block]; });
             console.log(content)
             content.unshift(headers);
             return toCsv(content);
@@ -39,7 +39,7 @@ define(['pipAPI'], function(APIconstructor) {
     });
 
 
-    var version_id      = 1;
+    var version_id      = Math.random()>0.5 ? 2 : 1;
 
     var all_answers     = [['d', 'l', 'x'],['l', 'd', 'x']];
     var answers     = all_answers[version_id-1];
@@ -52,8 +52,9 @@ define(['pipAPI'], function(APIconstructor) {
  	    feedback     : '',
  	    instructions :{
             inst_welcome : `<font size=5>
-                                <p>You will now have a practice </p><br>
-                                <P>Reminder:</p><br>
+                                <p>Welcome to the experiment!</p><br>
+                                <p>We will show you letters, one after the other.</p>
+                                <P>Your task is to judge, as quickly as possible, what the letter is.</p><br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
                                 <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
@@ -66,7 +67,7 @@ define(['pipAPI'], function(APIconstructor) {
                             </font>`,
             inst_start   : `<font size=5>
                                 <p>The practice has now ended.</p></br>
-                                <p>Your performance in the following trials will be recorded.</p></br>
+
                                 <p>Remember: indicate the presented letter.</p></br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
@@ -85,7 +86,9 @@ define(['pipAPI'], function(APIconstructor) {
         },
 
         times: {
+            first_stop_signal_time  : 250,
             stop_signal_time  : 250,
+
             fixation_duration : 300,
             stimulus_duration : 1700,
             feedback_duration : 1500,
@@ -95,11 +98,10 @@ define(['pipAPI'], function(APIconstructor) {
         frame            : 'https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png',
 
         minScore4exp     : 0,
-        trials4practice  : 3,
+        trials4practice  : 4,
 
         score             : 0,
-        trial_count       : 1,
-        is_practice       : true
+        trial_count       : 1
 	});
 
 
@@ -201,7 +203,7 @@ define(['pipAPI'], function(APIconstructor) {
                 actions: [
                     {type:'showStim', handle:'fixation'}, // show fixation
                     {type:'trigger', handle:'show_stimuli', duration:'<%= current.times.fixation_duration %>'}, // remove fixation after 500 ms
-                    {type:'custom', fn: function(a, b, trial){trial.data.stop_signal_time = global.current.stop_signal_time;}}
+                    {type:'custom', fn: function(a, b, trial){trial.data.stop_signal_time = global.current.times.stop_signal_time;}}
                 ]
             },
             {
@@ -216,6 +218,8 @@ define(['pipAPI'], function(APIconstructor) {
                 conditions:[{type:'inputEquals',value:'show_stimuli'},
                             {type:'custom', fn: function(a, b, trial){return trial.data.type === 'nogo';}}],
                 actions: [
+                    {type:'custom', fn: function(a, b, trial){console.log(global.current.times.stop_signal_time);}},
+
                     {type:'trigger',handle:'showSignal', duration: '<%= global.current.times.stop_signal_time %>'}
                 ]
             },
@@ -259,7 +263,7 @@ define(['pipAPI'], function(APIconstructor) {
             {
                 conditions: [{type:'inputEquals', value:'correct_inhibition'}],
                 actions: [
-                    {type:'custom',fn: function(){global.current.stop_signal_time = Math.min (global.current.stop_signal_time+50, current.stimulus_duration);
+                    {type:'custom',fn: function(){global.current.times.stop_signal_time = Math.min (global.current.times.stop_signal_time+50, current.times.stimulus_duration);
                     }}
                 ]
             },
@@ -273,7 +277,7 @@ define(['pipAPI'], function(APIconstructor) {
                     {type:'removeInput', handle:['m']},
                     {type:'removeInput', handle:['b']},
 
-                    {type:'custom',fn: function(){global.current.stop_signal_time = Math.max(0, global.current.stop_signal_time-50);}},
+                    {type:'custom',fn: function(){global.current.times.stop_signal_time = Math.max(0, global.current.times.stop_signal_time-50);}},
                     {type:'hideStim', handle:['All']}
 
                 ]
@@ -334,9 +338,11 @@ define(['pipAPI'], function(APIconstructor) {
             /* Inter trial interval */
 
             {
-                conditions: [{type:'inputEquals', value:'ITI'},
+                conditions: [
+                    {type:'inputEquals', value:'ITI'},
                     {type:'currentEquals',property:'feedback', value:'correct'},
-                    {type:'currentEquals', property:'is_practice', value:true}],
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}}
+                ],
                 actions: [
                     {type:'showStim', handle: 'correct'},
                     {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
@@ -344,9 +350,11 @@ define(['pipAPI'], function(APIconstructor) {
             },
 
             {
-                conditions: [{type:'inputEquals', value:'ITI'},
+                conditions: [
+                    {type:'inputEquals', value:'ITI'},
                     {type:'currentEquals',property:'feedback', value:'error'},
-                    {type:'currentEquals', property:'is_practice', value:true}],
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}}
+                ],
                 actions: [
                     {type:'showStim', handle: 'error'},
                     {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
@@ -354,9 +362,11 @@ define(['pipAPI'], function(APIconstructor) {
             },
 
             {
-                conditions: [{type:'inputEquals', value:'ITI'},
+                conditions: [
+                    {type:'inputEquals', value:'ITI'},
                     {type:'currentEquals',property:'feedback', value:'shouldStop'},
-                    {type:'currentEquals', property:'is_practice', value:true}],
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}}
+                ],
                 actions: [
                     {type:'showStim', handle: 'shouldStop'},
                     {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
@@ -364,9 +374,11 @@ define(['pipAPI'], function(APIconstructor) {
             },
 
             {
-                conditions: [{type:'inputEquals', value:'ITI'},
+                conditions: [
+                    {type:'inputEquals', value:'ITI'},
                     {type:'currentEquals',property:'feedback', value:'timeoutmessage'},
-                    {type:'currentEquals', property:'is_practice', value:true}],
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}}
+                ],
                 actions: [
                     {type:'showStim', handle: 'timeoutmessage'},
                     {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
@@ -383,7 +395,7 @@ define(['pipAPI'], function(APIconstructor) {
                 actions:[
                     {type:'custom',fn: function(){global.current.trial_count++;}},
                     {type:'removeInput', handle:['All']},
-                    {type:'trigger', handle:'end',duration:'<%= current.is_practice ? current.times.feedback_duration+current.times.iti_duration : current.times.iti_duration %>'}
+                    {type:'trigger', handle:'end',duration:'<%= trialData.block==="practice" ? current.times.feedback_duration+current.times.iti_duration : current.times.iti_duration %>'}
                 ]
             },
 
@@ -391,7 +403,7 @@ define(['pipAPI'], function(APIconstructor) {
             // if current.score is high enough, then proceed to next trial, else, try the practice again
                         {
                 conditions: [ // incorrect & too many trials
-                    {type:'currentEquals',property:'is_practice', value:true},
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}},
                     {type:'custom',fn: function(){return global.current.score < global.current.minScore4exp;}},
                     {type:'custom',fn: function(){return global.current.trial_count >= global.current.trials4practice;}}
                 ],
@@ -403,21 +415,22 @@ define(['pipAPI'], function(APIconstructor) {
             },
             {
                 conditions: [ // correct & enough trials
-                    {type:'currentEquals',property:'is_practice', value:true},
+                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}},
                     {type:'custom',fn: function(){return global.current.score >= global.current.minScore4exp;}},
                     {type:'custom',fn: function(){return global.current.trial_count > global.current.trials4practice;}}
                 ],
                 actions: [
                         {type:'custom',fn: function(){global.current.score=0;}},
                         {type:'custom',fn: function(){global.current.trial_count=0;}},
+                        {type:'custom',fn: function(){global.current.times.stop_signal_time = global.current.times.first_stop_signal_time;}},
+
                         {type:'trigger', handle:'endOfPractice',duration:'<%= current.times.feedback_duration %>'}
                 ]
             },
             {
                 conditions: [{type:'inputEquals', value:'endOfPractice'}],
                 actions: [
-                    {type:'goto',destination: 'nextWhere', properties: {exp:true}},
-                    {type:'custom',fn: function(){current.is_practice = false;}}
+                    {type:'goto',destination: 'nextWhere', properties: {exp:true}}
                 ]
             },
             {
@@ -479,14 +492,14 @@ API.addTrialSet('nogo', [
 					mixer: 'repeat',
 					times: 3,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 3, 'seed': 'goP'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 3, 'seed': 'goP'}, data:{block: 'practice'}}
 					]
 				},
 				{
 					mixer: 'repeat',
 					times: 1,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 1, 'seed': 'nogoP'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 1, 'seed': 'nogoP'}, data:{block: 'practice'}}
 					]
 				}
 			]
@@ -500,16 +513,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 30,
+					times: 1,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 3, 'seed': 'goE'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 1, 'seed': 'goE'}, data:{block: 'exp'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 10,
+					times: 30,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 1, 'seed': 'nogoE'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 30, 'seed': 'nogoE'}, data:{block: 'exp'}}
 					]
 				}
 			]
