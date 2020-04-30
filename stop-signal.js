@@ -39,7 +39,7 @@ define(['pipAPI'], function(APIconstructor) {
     });
 
 
-    var version_id      = Math.random()>0.5 ? 2 : 1;
+    var version_id      =  1;
 
     var all_answers     = [['d', 'l', 'x'],['l', 'd', 'x']];
     var answers     = all_answers[version_id-1];
