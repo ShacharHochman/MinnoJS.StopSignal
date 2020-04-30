@@ -52,7 +52,7 @@ define(['pipAPI'], function(APIconstructor) {
  	    feedback     : '',
  	    instructions :{
             inst_welcome : `<font size=5>
-                                <p>AAAYou will now have the experiment's practice </p><br>
+                                <p>You will now have the experiment's practice </p><br>
                                 <P>Your response keys instructions are as follows:</p><br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
