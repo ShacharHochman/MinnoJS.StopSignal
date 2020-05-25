@@ -56,7 +56,7 @@ define(['pipAPI'], function(APIconstructor) {
                                 <P>Your response keys instructions are as follows:</p><br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
-                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
+                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your left hand.</p><br>
 
                                 <p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>
 
@@ -69,7 +69,7 @@ define(['pipAPI'], function(APIconstructor) {
                                 <p>Remember: </p></br>
 
                                 <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
-                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your right hand.</p><br>
+                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your left hand.</p><br>
 
                                 <p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>
 
@@ -96,7 +96,7 @@ define(['pipAPI'], function(APIconstructor) {
         frame            : 'https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png',
 
         minScore4exp     : 0,
-        trials4practice  : 8,
+        trials4practice  : 64,
 
         score             : 0,
         trial_count       : 1
@@ -488,16 +488,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 4,
+					times: 48,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 4, 'seed': 'goP'}, data:{block: 'practice'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 48, 'seed': 'goP'}, data:{block: 'practice'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 4,
+					times: 16,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 4, 'seed': 'nogoP'}, data:{block: 'practice'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 16, 'seed': 'nogoP'}, data:{block: 'practice'}}
 					]
 				}
 			]
@@ -511,16 +511,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 10,
+					times: 195,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 10, 'seed': 'goE'}, data:{block: 'exp'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 195, 'seed': 'goE'}, data:{block: 'exp'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 10,
+					times: 65,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 10, 'seed': 'nogoE'}, data:{block: 'exp'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 65, 'seed': 'nogoE'}, data:{block: 'exp'}}
 					]
 				}
 			]
