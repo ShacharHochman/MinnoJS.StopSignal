@@ -511,16 +511,16 @@ API.addTrialSet('nogo', [
 			data: [
 				{
 					mixer: 'repeat',
-					times: 195,
+					times: 192,
 					data: [
-                        {inherit:{set:'go', type:'equalDistribution', n: 195, 'seed': 'goE'}, data:{block: 'exp'}}
+                        {inherit:{set:'go', type:'equalDistribution', n: 192, 'seed': 'goE'}, data:{block: 'exp'}}
 					]
 				},
 				{
 					mixer: 'repeat',
-					times: 65,
+					times: 64,
 					data: [
-                        {inherit:{set:'nogo', type:'equalDistribution', n: 65, 'seed': 'nogoE'}, data:{block: 'exp'}}
+                        {inherit:{set:'nogo', type:'equalDistribution', n: 64, 'seed': 'nogoE'}, data:{block: 'exp'}}
 					]
 				}
 			]
