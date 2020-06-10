@@ -1,7 +1,6 @@
 define(['pipAPI'], function(APIconstructor) {
 
     var API     = new APIconstructor();
-    var global  = API.getGlobal();
     var current = API.getCurrent();
     API.addSettings('onEnd', window.minnoJS.onEnd);
     API.addSettings('logger', {
@@ -44,6 +43,7 @@ define(['pipAPI'], function(APIconstructor) {
     var all_answers     = [['d', 'l', 'x'],['l', 'd', 'x']];
     var answers     = all_answers[version_id-1];
 
+    API.addSettings('preloadImages', ['https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png']);
 
 
  	API.addCurrent({
@@ -51,47 +51,45 @@ define(['pipAPI'], function(APIconstructor) {
  	    version_id: version_id,
  	    feedback     : '',
  	    instructions :{
-            inst_welcome : `<font size=5>
-                                <p>You will now have the experiment's practice </p><br>
-                                <P>Your response keys instructions are as follows:</p><br>
+            inst_welcome :  '<p>You will now have the experiment\'s practice </p><br>'+
+                            '<P>Your response keys instructions are as follows:</p><br>'+
 
-                                <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
-                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your left hand.</p><br>
+                            '<p>If the letter is <b><%= current.version_id===1 ? "O" : "X" %></b>, hit the <b>L</b> key with your right hand.</p>'+
+                            '<p>If the letter is <b><%= current.version_id===1 ? "X" : "O" %></b>, hit the <b>D</b> key with your left hand.</p><br>'+
 
-                                <p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>
+                            '<p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>'+
 
-                                <p>Please put your fingers on the keyboard to get ready</p></br>
+                            '<p>Please put your fingers on the keyboard to get ready</p></br>'+
 
-                                <p>Press SPACE to start a short practice</p>
-                            </font>`,
-            inst_start   : `<font size=5>
-                                <p>The practice has now ended.</p></br>
-                                <p>Remember: </p></br>
+                            '<p>Press SPACE to start a short practice</p>',
 
-                                <p>If the letter is <b>${version_id===1 ? 'O' : 'X'}</b>, hit the <b>L</b> key with your right hand.</p>
-                                <p>If the letter is <b>${version_id===1 ? 'X' : 'O'}</b>, hit the <b>D</b> key with your left hand.</p><br>
+            inst_start   :  '<p>The practice has now ended.</p></br>'+
+                            '<p>Remember: </p></br>'+
 
-                                <p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>
+                            '<p>If the letter is <b><%= current.version_id===1 ? "O" : "X" %></b>, hit the <b>L</b> key with your right hand.</p>'+
+                            '<p>If the letter is <b><%= current.version_id===1 ? "X" : "O" %></b>, hit the <b>D</b> key with your left hand.</p><br>'+
 
-                                <p>Please put your fingers on the keyboard to get ready</p></br>
+                            '<p style="color:red"><b>IMPORTANT If shortly after the letter appears, a box is shown around it, DO NOT RESPOND at all. Wait for the next trial</b></p><br>'+
 
-                                <p>Press SPACE to continue</p>
-                            </font>`,
+                            '<p>Please put your fingers on the keyboard to get ready</p></br>'+
 
-            inst_bye     : `<p>This is the end of the experiment</p>
-                            <p>Thank you for your participation</p>
-                            <p>To end please press SPACE</p>`
+                            '<p>Press SPACE to continue</p>',
+
+            inst_bye     : '<p>This is the end of the experiment</p>'+
+                            '<p>Thank you for your participation</p>'+
+                            '<p>To end please press SPACE</p>'
         },
-
-        times: {
+        times:{
             first_stop_signal_time  : 250,
-            stop_signal_time  : 250,
-
-            fixation_duration : 300,
-            stimulus_duration : 1700,
-            feedback_duration : 1500,
-            iti_duration      : 500
+            stop_signal_time        : 250
         },
+        durations: {
+            fixation : 300,
+            stimulus : 1700,
+            feedback : 1500,
+            iti      : 500
+        },
+
 
         frame            : 'https://raw.githubusercontent.com/ShacharHochman/MinnoJS.StopSignal/master/images/frame.png',
 
@@ -105,7 +103,7 @@ define(['pipAPI'], function(APIconstructor) {
 
 
     API.addSettings('canvas',{
-        textSize         : 5,
+        textSize         : 4,
         maxWidth         : 1200,
         proportions      : 0.65,
         borderWidth      : 0.4,
@@ -113,10 +111,6 @@ define(['pipAPI'], function(APIconstructor) {
         canvasBackground : '#ffffff'
     });
 
-    //the source of the images
-    API.addSettings('base_url',{
-        image : global.baseURL
-    });
 
     /***********************************************
     // Stimuli
@@ -200,15 +194,15 @@ define(['pipAPI'], function(APIconstructor) {
                 conditions: [{type:'begin'}],
                 actions: [
                     {type:'showStim', handle:'fixation'}, // show fixation
-                    {type:'trigger', handle:'show_stimuli', duration:'<%= current.times.fixation_duration %>'}, // remove fixation after 500 ms
-                    {type:'custom', fn: function(a, b, trial){trial.data.stop_signal_time = global.current.times.stop_signal_time;}}
+                    {type:'trigger', handle:'show_stimuli', duration:'<%= current.durations.fixation %>'}, // remove fixation after 500 ms
+                    {type:'custom', fn: function(a, b, trial){trial.data.stop_signal_time = current.times.stop_signal_time;}}
                 ]
             },
             {
                 conditions:[{type:'inputEquals',value:'show_stimuli'}],
                 actions: [
                     {type:'trigger',handle:'showTarget'},
-                    {type:'trigger',handle:'ITI', duration: '<%= current.times.stimulus_duration %>'}
+                    {type:'trigger',handle:'ITI', duration: '<%= current.durations.stimulus %>'}
                 ]
             },
 
@@ -216,9 +210,9 @@ define(['pipAPI'], function(APIconstructor) {
                 conditions:[{type:'inputEquals',value:'show_stimuli'},
                             {type:'custom', fn: function(a, b, trial){return trial.data.type === 'nogo';}}],
                 actions: [
-                    {type:'custom', fn: function(a, b, trial){console.log(global.current.times.stop_signal_time);}},
+                    {type:'custom', fn: function(a, b, trial){console.log(current.times.stop_signal_time);}},
 
-                    {type:'trigger',handle:'showSignal', duration: '<%= global.current.times.stop_signal_time %>'}
+                    {type:'trigger',handle:'showSignal', duration: '<%= current.times.stop_signal_time %>'}
                 ]
             },
 
@@ -243,7 +237,7 @@ define(['pipAPI'], function(APIconstructor) {
 				    {type:'setInput', input:{handle:current.answers[1], on: 'keypressed', key: current.answers[1]}},
 
                     {type:'showStim', handle: 'target'},
-                    {type:'trigger',handle:'targetOut', duration:'<%= current.times.stimulus_duration %>'}
+                    {type:'trigger',handle:'targetOut', duration:'<%= current.durations.stimulus %>'}
                 ]
             },
 
@@ -261,7 +255,7 @@ define(['pipAPI'], function(APIconstructor) {
             {
                 conditions: [{type:'inputEquals', value:'correct_inhibition'}],
                 actions: [
-                    {type:'custom',fn: function(){global.current.times.stop_signal_time = Math.min (global.current.times.stop_signal_time+50, current.times.stimulus_duration);
+                    {type:'custom',fn: function(){current.times.stop_signal_time = Math.min (current.times.stop_signal_time+50, current.durations.stimulus);
                     }}
                 ]
             },
@@ -275,7 +269,7 @@ define(['pipAPI'], function(APIconstructor) {
                     {type:'removeInput', handle:['l']},
                     {type:'removeInput', handle:['d']},
 
-                    {type:'custom',fn: function(){global.current.times.stop_signal_time = Math.max(0, global.current.times.stop_signal_time-50);}},
+                    {type:'custom',fn: function(){current.times.stop_signal_time = Math.max(0, current.times.stop_signal_time-50);}},
                     {type:'hideStim', handle:['All']}
 
                 ]
@@ -290,7 +284,7 @@ define(['pipAPI'], function(APIconstructor) {
                     {type:'removeInput', handle:['d']},
                     {type:'setTrialAttr', setter:{score:1}},
                     {type:'log'},
-                    {type:'custom',fn: function(){global.current.score++; global.current.feedback  = 'correct';}},
+                    {type:'custom',fn: function(){current.score++; current.feedback  = 'correct';}},
                     {type:'hideStim', handle:['All']}
                 ]
             },
@@ -306,7 +300,7 @@ define(['pipAPI'], function(APIconstructor) {
 
                     {type:'setTrialAttr', setter:{score:0}},
                     {type:'log'},
-                    {type:'custom',fn: function(a, b, trial){global.current.feedback = trial.data.type === 'go' ? 'error' : 'shouldStop';}},
+                    {type:'custom',fn: function(a, b, trial){current.feedback = trial.data.type === 'go' ? 'error' : 'shouldStop';}},
                     {type:'hideStim', handle:['All']}
                 ]
             },
@@ -316,7 +310,7 @@ define(['pipAPI'], function(APIconstructor) {
                 actions: [
                     {type:'setTrialAttr', setter:{score:1}},
                     {type:'log'},
-                    {type:'custom',fn: function(){global.current.score++; global.current.feedback = 'correct';}},
+                    {type:'custom',fn: function(){current.score++; current.feedback = 'correct';}},
                     {type:'hideStim', handle:['All']}
 
                 ]
@@ -327,8 +321,10 @@ define(['pipAPI'], function(APIconstructor) {
                     {type:'inputEquals',value:'timeout'}], // what to do upon the timeoutP trigger
                 actions: [
                     {type:'setTrialAttr', setter:{score:-1}},
+                    {type:'removeInput', handle:['l']},
+                    {type:'removeInput', handle:['d']},
                     {type:'log'},
-                    {type:'custom',fn: function(){global.current.feedback = 'timeoutmessage';}},
+                    {type:'custom',fn: function(){current.feedback = 'timeoutmessage';}},
                     {type:'hideStim', handle:['All']}
                 ]
             },
@@ -343,7 +339,7 @@ define(['pipAPI'], function(APIconstructor) {
                 ],
                 actions: [
                     {type:'showStim', handle: 'correct'},
-                    {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
+                    {type:'trigger', handle:'clean',duration: '<%= current.durations.feedback %>'}
                 ]
             },
 
@@ -355,7 +351,7 @@ define(['pipAPI'], function(APIconstructor) {
                 ],
                 actions: [
                     {type:'showStim', handle: 'error'},
-                    {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
+                    {type:'trigger', handle:'clean',duration: '<%= current.durations.feedback %>'}
                 ]
             },
 
@@ -367,7 +363,7 @@ define(['pipAPI'], function(APIconstructor) {
                 ],
                 actions: [
                     {type:'showStim', handle: 'shouldStop'},
-                    {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
+                    {type:'trigger', handle:'clean',duration: '<%= current.durations.feedback %>'}
                 ]
             },
 
@@ -379,7 +375,7 @@ define(['pipAPI'], function(APIconstructor) {
                 ],
                 actions: [
                     {type:'showStim', handle: 'timeoutmessage'},
-                    {type:'trigger', handle:'clean',duration: '<%= current.times.feedback_duration %>'}
+                    {type:'trigger', handle:'clean',duration: '<%= current.durations.feedback %>'}
                 ]
             },
             {
@@ -391,46 +387,12 @@ define(['pipAPI'], function(APIconstructor) {
             {
                 conditions: [{type:'inputEquals', value:'ITI'}],
                 actions:[
-                    {type:'custom',fn: function(){global.current.trial_count++;}},
+                    {type:'custom',fn: function(){current.trial_count++;}},
                     {type:'removeInput', handle:['All']},
-                    {type:'trigger', handle:'end',duration:'<%= trialData.block==="practice" ? current.times.feedback_duration+current.times.iti_duration : current.times.iti_duration %>'}
+                    {type:'trigger', handle:'end',duration:'<%= trialData.block==="practice" ? current.durations.feedback+current.durations.iti : current.durations.iti %>'}
                 ]
             },
 
-            /* End trial */
-            // if current.score is high enough, then proceed to next trial, else, try the practice again
-                        {
-                conditions: [ // incorrect & too many trials
-                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}},
-                    {type:'custom',fn: function(){return global.current.score < global.current.minScore4exp;}},
-                    {type:'custom',fn: function(){return global.current.trial_count >= global.current.trials4practice;}}
-                ],
-                actions: [
-                    {type:'custom',fn: function(){global.current.score=0;}},
-                    {type:'custom',fn: function(){global.current.trial_count=0;}},
-                    {type:'goto',destination: 'previousWhere', properties: {practice:true}}
-                ]
-            },
-            {
-                conditions: [ // correct & enough trials
-                    {type:'custom',fn: function(a, b, trial){return trial.data.block==='practice';}},
-                    {type:'custom',fn: function(){return global.current.score >= global.current.minScore4exp;}},
-                    {type:'custom',fn: function(){return global.current.trial_count > global.current.trials4practice;}}
-                ],
-                actions: [
-                        {type:'custom',fn: function(){global.current.score=0;}},
-                        {type:'custom',fn: function(){global.current.trial_count=0;}},
-                        {type:'custom',fn: function(){global.current.times.stop_signal_time = global.current.times.first_stop_signal_time;}},
-
-                        {type:'trigger', handle:'endOfPractice',duration:'<%= current.times.feedback_duration %>'}
-                ]
-            },
-            {
-                conditions: [{type:'inputEquals', value:'endOfPractice'}],
-                actions: [
-                    {type:'goto',destination: 'nextWhere', properties: {exp:true}}
-                ]
-            },
             {
                 conditions: [ {type:'inputEquals', value:'end'} ],
                 actions: [ {type:'endTrial' }]
