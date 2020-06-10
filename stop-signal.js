@@ -272,8 +272,8 @@ define(['pipAPI'], function(APIconstructor) {
                             {type:'custom', fn: function(a, b, trial){return trial.data.type === 'nogo';}}],
                 actions: [
                     {type:'removeInput', handle:['targetOut']},
-                    {type:'removeInput', handle:['m']},
-                    {type:'removeInput', handle:['b']},
+                    {type:'removeInput', handle:['l']},
+                    {type:'removeInput', handle:['d']},
 
                     {type:'custom',fn: function(){global.current.times.stop_signal_time = Math.max(0, global.current.times.stop_signal_time-50);}},
                     {type:'hideStim', handle:['All']}
@@ -286,8 +286,8 @@ define(['pipAPI'], function(APIconstructor) {
                 conditions: [{type:'inputEqualsStim', property:'correct'}], //Correct response
                 actions: [
                     {type:'removeInput', handle:['targetOut']},
-                    {type:'removeInput', handle:['m']},
-                    {type:'removeInput', handle:['b']},
+                    {type:'removeInput', handle:['l']},
+                    {type:'removeInput', handle:['d']},
                     {type:'setTrialAttr', setter:{score:1}},
                     {type:'log'},
                     {type:'custom',fn: function(){global.current.score++; global.current.feedback  = 'correct';}},
@@ -301,8 +301,8 @@ define(['pipAPI'], function(APIconstructor) {
                 actions: [
                     {type:'removeInput', handle:['showSignal']},
                     {type:'removeInput', handle:['targetOut']},
-                    {type:'removeInput', handle:['m']},
-                    {type:'removeInput', handle:['b']},
+                    {type:'removeInput', handle:['l']},
+                    {type:'removeInput', handle:['d']},
 
                     {type:'setTrialAttr', setter:{score:0}},
                     {type:'log'},
