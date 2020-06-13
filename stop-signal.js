@@ -119,12 +119,12 @@ define(['pipAPI'], function(APIconstructor) {
 
 
     API.addStimulusSets({
-        defaultStim: [{data : {alias:'default'}, css:{color:'black','font-size':'100px'}}], //general
+        defaultStim: [{data : {alias:'default'}, css:{color:'black','font-size':'55px'}}], //general
         fixation : [{
-            inherit:'defaultStim', data:{handle:'fixation', alias:'fixation'},
+            inherit:'defaultStim', data:{handle:'fixation', alias:'fixation'}, css:{color:'black','font-size':'100px'},
             media: '+'
         }],
-        error : [{
+	    error : [{
             inherit:'defaultStim', data:{handle:'error', alias:'error'},
             media: {word: 'Wrong answer'}
         }],
